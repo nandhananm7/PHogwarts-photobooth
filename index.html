@@ -308,7 +308,13 @@
 
         async function exportGIF() {
             const total = CLIP * FPS;
-            const gif = new GIF({ workers: 2, quality: 10, width: geo.W, height: geo.H });
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js',
+                width: geo.W,
+                height: geo.H
+            });
             gif.on('progress', p => { bar.style.width = Math.round(p * 100) + '%'; statusEl.textContent = 'Encoding… ' + Math.round(p * 100) + '%'; });
             gif.on('finished', async (blob) => {
                 lastGifBlob = blob;
