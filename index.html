@@ -310,7 +310,22 @@
             const total = CLIP * FPS;
             const gif = new GIF({ workers: 2, quality: 10, width: geo.W, height: geo.H });
             gif.on('progress', p => { bar.style.width = Math.round(p * 100) + '%'; statusEl.textContent = 'Encoding… ' + Math.round(p * 100) + '%'; });
-            gif.on('finished', blob => { const url = URL.createObjectURL(blob); dl.href = url; dl.download = `photobooth_${Date.now()}.gif`; dl.classList.remove('hidden'); statusEl.textContent = 'GIF ready! Click "Save GIF"'; });
+            gif.on('finished', async (blob) => {
+                lastGifBlob = blob;
+                const url = URL.createObjectURL(blob);
+                const name = `photobooth_${new Date().toISOString().replace(/[:.]/g, '-')}.gif`;
+
+                // Trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                statusEl.textContent = `Saved as ${name}`;
+            });
+
             for (let f = 0; f < total; f++) { drawComposited(f); gif.addFrame(ctx, { copy: true, delay: 1000 / FPS }); }
             gif.render();
         }
