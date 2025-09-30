@@ -366,7 +366,7 @@
 
                 statusEl.textContent = 'Encoding…';
                 gif.render();
-            }
+            });
 
             startBtn.addEventListener('click', async () => { startBtn.disabled = true; try { await recordAll(); } finally { startBtn.disabled = false; } });
             previewBtn.addEventListener('click', previewPlayback);
