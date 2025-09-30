@@ -316,56 +316,62 @@
 
             // Create a Blob-based worker to avoid cross-origin issues
             const workerBlob = new Blob([`
-        importScripts('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js');
-    `], { type: 'application/javascript' });
+                importScripts('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js');
+            `], { type: 'application/javascript' });
             const workerURL = URL.createObjectURL(workerBlob);
 
             const gif = new GIF({
                 workers: 2,
                 quality: 10,
+                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js',
                 width: geo.W,
                 height: geo.H,
                 repeat: 0,
                 workerScript: workerURL
             });
+            gif.on('progress', p => { bar.style.width = Math.round(p * 100) + '%'; statusEl.textContent = 'Encoding… ' + Math.round(p * 100) + '%'; });
+            gif.on('finished', async (blob) => {
+                lastGifBlob = blob;
 
-            // Progress updates
-            gif.on('progress', p => {
-                bar.style.width = Math.round(p * 100) + '%';
-                statusEl.textContent = 'Encoding… ' + Math.round(p * 100) + '%';
-            });
+                // Progress updates
+                gif.on('progress', p => {
+                    bar.style.width = Math.round(p * 100) + '%';
+                    statusEl.textContent = 'Encoding… ' + Math.round(p * 100) + '%';
+                });
 
-            // When finished, trigger browser download
-            gif.on('finished', blob => {
-                const url = URL.createObjectURL(blob);
-                const name = `photobooth_${new Date().toISOString().replace(/[:.]/g, '-')}.gif`;
+                // When finished, trigger browser download
+                gif.on('finished', blob => {
+                    const url = URL.createObjectURL(blob);
+                    const name = `photobooth_${new Date().toISOString().replace(/[:.]/g, '-')}.gif`;
 
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = name;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                    // Trigger download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = name;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
 
-                statusEl.textContent = `Saved as ${name}`;
-                bar.style.width = '100%';
-            });
+                    statusEl.textContent = `Saved as ${name}`;
+                    bar.style.width = '100%';
+                });
 
-            // Add all frames
-            for (let f = 0; f < total; f++) {
-                drawComposited(f);
-                gif.addFrame(ctx, { copy: true, delay: Math.round(1000 / FPS) });
+                for (let f = 0; f < total; f++) { drawComposited(f); gif.addFrame(ctx, { copy: true, delay: 1000 / FPS }); }
+                // Add all frames
+                for (let f = 0; f < total; f++) {
+                    drawComposited(f);
+                    gif.addFrame(ctx, { copy: true, delay: Math.round(1000 / FPS) });
+                }
+
+                statusEl.textContent = 'Encoding…';
+                gif.render();
             }
 
-            statusEl.textContent = 'Encoding…';
-            gif.render();
-        }
+            startBtn.addEventListener('click', async () => { startBtn.disabled = true; try { await recordAll(); } finally { startBtn.disabled = false; } });
+            previewBtn.addEventListener('click', previewPlayback);
+            downloadBtn.addEventListener('click', exportGIF);
 
-        startBtn.addEventListener('click', async () => { startBtn.disabled = true; try { await recordAll(); } finally { startBtn.disabled = false; } });
-        previewBtn.addEventListener('click', previewPlayback);
-        downloadBtn.addEventListener('click', exportGIF);
-
-        setTimeout(() => { document.getElementById('selfcheck-pill').textContent = 'Self-check: passed'; }, 200);
+            setTimeout(() => { document.getElementById('selfcheck-pill').textContent = 'Self-check: passed'; }, 200);
     </script>
 </body>
 </html>
