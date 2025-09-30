@@ -205,7 +205,7 @@
             <section class="card">
                 <h3>Live View / Preview</h3>
                 <div class="preview">
-                    <canvas id="c" width="720" height="900"></canvas>
+                    <canvas id="c" width="1080" height="1920"></canvas>
                     <div id="count" class="count hidden"></div>
                 </div>
                 <footer>
@@ -237,7 +237,7 @@
         let bgReady = false;
         bgImg.onload = () => bgReady = true;
 
-        function layoutGeometry() { return { W: OUT_W, H: OUT_H, rects: [{ x: 57, y: 220, w: 573, h: 308 }, { x: 50, y: 600, w: 310, h: 250 }, { x: 383, y: 563, w: 270, h: 250 }] }; }
+        function layoutGeometry() { return { W: OUT_W, H: OUT_H, rects: [{ x: 153, y: 508, w: 773, h: 406 }, { x: 153, y: 960, w: 773, h: 406 }, { x: 153, y: 1407, w: 773, h: 406 }] }; }
         const geo = layoutGeometry();
 
         function fitCover(sw, sh, dw, dh) { const sr = sw / sh, dr = dw / dh; let w, h, x, y; if (sr > dr) { h = dh; w = h * sr; x = (dw - w) / 2; y = 0; } else { w = dw; h = w / sr; x = 0; y = (dh - h) / 2; } return { x, y, w, h }; }
@@ -316,8 +316,8 @@
 
             // Create a Blob-based worker to avoid cross-origin issues
             const workerBlob = new Blob([`
-                importScripts('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js');
-            `], { type: 'application/javascript' });
+            importScripts('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js');
+        `], { type: 'application/javascript' });
             const workerURL = URL.createObjectURL(workerBlob);
 
             const gif = new GIF({
@@ -325,7 +325,8 @@
                 quality: 10,
                 workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js',
                 width: geo.W,
-                height: geo.H,
+                height: geo.H
+                    height: geo.H,
                 repeat: 0,
                 workerScript: workerURL
             });
